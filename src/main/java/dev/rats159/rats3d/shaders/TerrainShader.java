@@ -9,8 +9,8 @@ import org.joml.Vector3f;
 public class TerrainShader extends Shader{
    public static final int MAX_LIGHTS_PER_VERT = 29;
 
-   private static final String VERTEX_PATH = "src/main/java/dev/rats159/rats3d/shaders/terrain_vertex.glsl";
-   private static final String FRAGMENT_PATH = "src/main/java/dev/rats159/rats3d/shaders/terrain_fragment.glsl";
+   private static final String VERTEX_PATH = "res/shaders/terrain_vertex.glsl";
+   private static final String FRAGMENT_PATH = "res/shaders/terrain_fragment.glsl";
 
    public TerrainShader() {
       super(VERTEX_PATH, FRAGMENT_PATH);

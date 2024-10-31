@@ -35,7 +35,7 @@ public class Terrain {
    private Model generateTerrain(Loader loader, String heightmap){
       BufferedImage image;
       try {
-         image = ImageIO.read(new File("res/"+heightmap+".png"));
+         image = ImageIO.read(new File("res/textures/"+heightmap+".png"));
       }catch (IOException e){
          throw new RuntimeException(e);
       }

@@ -46,6 +46,7 @@ public class Tower extends Entity{
       this.position.y = terrain.getHeight(this.x(),this.z());
 
       this.light.setPosition(this.position);
+      this.light.getPosition().y += 2;
    }
 
    public Light getLight() {

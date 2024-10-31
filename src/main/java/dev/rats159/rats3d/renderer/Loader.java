@@ -37,7 +37,7 @@ public class Loader {
    }
 
    public int loadTexture(String path){
-      Texture texture = new Texture("res/%s.png".formatted(path));
+      Texture texture = new Texture("res/textures/%s.png".formatted(path));
       glGenerateMipmap(GL_TEXTURE_2D);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
       int id = texture.getID();

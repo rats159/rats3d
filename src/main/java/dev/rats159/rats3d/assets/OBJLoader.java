@@ -21,7 +21,7 @@ public class OBJLoader {
       BufferedReader reader;
 
       try{
-         reader = new BufferedReader(new FileReader(RES_LOC + objFileName + ".obj"));
+         reader = new BufferedReader(new FileReader(RES_LOC +"models/"+ objFileName + ".obj"));
       } catch (IOException e) {
          throw new RuntimeException(e);
       }

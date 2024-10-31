@@ -6,8 +6,8 @@ import org.joml.Matrix4f;
 public class ParticleShader extends Shader {
 
 
-   private static final String VERTEX_FILE = "src/main/java/dev/rats159/rats3d/particle/particleVShader.glsl";
-   private static final String FRAGMENT_FILE = "src/main/java/dev/rats159/rats3d/particle/particleFShader.glsl";
+   private static final String VERTEX_FILE = "res/shaders/particleVShader.glsl";
+   private static final String FRAGMENT_FILE = "res/shaders/particleFShader.glsl";
 
    public ParticleShader() {
       super(VERTEX_FILE, FRAGMENT_FILE);

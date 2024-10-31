@@ -55,17 +55,15 @@ public class Main {
 
       List<Tower> towers = new ArrayList<>();
 
-      Light[] lights = new Light[5000+1];
-      // Sun
-      lights[0] = new Light(new Vector3f(400, 1000, 400), new Vector3f(1));
+      Light[] lights = new Light[5000];
 
       for(int i = 0; i < 5000; i++){
          float x = (float) (Math.random() * 800);
          float z = (float) (Math.random() * 800);
 
          Tower tower = new Tower(playerModel,new Vector3f(x,terrain.getHeight(x,z),z));
+         lights[i] = tower.getLight();
          towers.add(tower);
-         lights[i+1] = tower.getLight();
       }
 
       while(!Window.shouldClose()){
@@ -86,7 +84,6 @@ public class Main {
          for(Tower t : towers){
             t.tick(terrain);
             renderController.processEntity(t);
-            particleSystem.generateParticles(new Vector3f(t.getPosition()),camera);
          }
 
          renderController.render(lights,camera);
