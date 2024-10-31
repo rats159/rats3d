@@ -32,24 +32,21 @@ public class ParticleRenderer {
    private final Model quad;
    private final ParticleShader shader;
 
-   private final Loader loader;
    private final int vboID;
 
    private int pointer = 0;
 
-   protected ParticleRenderer(Loader loader, Matrix4f projectionMatrix){
-      this.loader = loader;
+   protected ParticleRenderer(Matrix4f projectionMatrix){
+      this.vboID = Loader.createEmptyVBO(INSTANCE_DATA_LENGTH * MAX_INSTANCES);
 
-      this.vboID = loader.createEmptyVBO(INSTANCE_DATA_LENGTH * MAX_INSTANCES);
+      quad = Loader.loadToVAO(QUAD_VERTICES,2);
 
-      quad = loader.loadToVAO(QUAD_VERTICES,2);
-
-      loader.addInstanceAttribute(quad.vaoID(),vboID,1,4,INSTANCE_DATA_LENGTH,0);
-      loader.addInstanceAttribute(quad.vaoID(),vboID,2,4,INSTANCE_DATA_LENGTH,4);
-      loader.addInstanceAttribute(quad.vaoID(),vboID,3,4,INSTANCE_DATA_LENGTH,8);
-      loader.addInstanceAttribute(quad.vaoID(),vboID,4,4,INSTANCE_DATA_LENGTH,12);
-      loader.addInstanceAttribute(quad.vaoID(),vboID,5,4,INSTANCE_DATA_LENGTH,16);
-      loader.addInstanceAttribute(quad.vaoID(),vboID,6,1,INSTANCE_DATA_LENGTH,20);
+      Loader.addInstanceAttribute(quad.vaoID(),vboID,1,4,INSTANCE_DATA_LENGTH,0);
+      Loader.addInstanceAttribute(quad.vaoID(),vboID,2,4,INSTANCE_DATA_LENGTH,4);
+      Loader.addInstanceAttribute(quad.vaoID(),vboID,3,4,INSTANCE_DATA_LENGTH,8);
+      Loader.addInstanceAttribute(quad.vaoID(),vboID,4,4,INSTANCE_DATA_LENGTH,12);
+      Loader.addInstanceAttribute(quad.vaoID(),vboID,5,4,INSTANCE_DATA_LENGTH,16);
+      Loader.addInstanceAttribute(quad.vaoID(),vboID,6,1,INSTANCE_DATA_LENGTH,20);
 
 
       shader = new ParticleShader();
@@ -74,7 +71,7 @@ public class ParticleRenderer {
             updateModelViewMatrix(particle.getPosition(), particle.getRotation(), particle.getScale(), viewMatrix,vboData);
             updateTextureInfo(particle,vboData);
          }
-         loader.updateVBO(vboID,vboData,buffer);
+         Loader.updateVBO(vboID,vboData,buffer);
          glDrawArraysInstanced(GL_TRIANGLE_STRIP,0,quad.vertexCount(),particleList.size());
       }
       finishRendering();

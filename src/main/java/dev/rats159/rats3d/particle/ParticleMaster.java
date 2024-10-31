@@ -2,7 +2,6 @@ package dev.rats159.rats3d.particle;
 
 import dev.rats159.rats3d.entities.Camera;
 import dev.rats159.rats3d.entities.Entity;
-import dev.rats159.rats3d.renderer.Loader;
 import org.joml.Matrix4f;
 
 import java.util.*;
@@ -11,8 +10,8 @@ public class ParticleMaster {
    private static final Map<ParticleTexture,List<Particle>> particles = new HashMap<>();
    private static ParticleRenderer renderer;
 
-   public static void init(Loader loader, Matrix4f projectionMatrix){
-      renderer = new ParticleRenderer(loader,projectionMatrix);
+   public static void init(Matrix4f projectionMatrix){
+      renderer = new ParticleRenderer(projectionMatrix);
    }
 
    public static void update(Camera camera){

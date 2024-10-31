@@ -24,15 +24,15 @@ public class Terrain {
 
    private float[][] heights;
 
-   public Terrain(int gridX, int gridZ, Loader loader, TerrainMultiTexture textures, TerrainTexture blendMap, String heightmap){
+   public Terrain(int gridX, int gridZ, TerrainMultiTexture textures, TerrainTexture blendMap, String heightmap){
       this.x = gridX * SIZE;
       this.z = gridZ * SIZE;
-      this.model = generateTerrain(loader, heightmap);
+      this.model = generateTerrain(heightmap);
       this.textures = textures;
       this.blendMap = blendMap;
    }
 
-   private Model generateTerrain(Loader loader, String heightmap){
+   private Model generateTerrain(String heightmap){
       BufferedImage image;
       try {
          image = ImageIO.read(new File("res/textures/"+heightmap+".png"));
@@ -80,7 +80,7 @@ public class Terrain {
             indices[pointer++] = bottomRight;
          }
       }
-      return loader.loadToVAO(vertices, textureCoords, normals, indices);
+      return Loader.loadToVAO(vertices, textureCoords, normals, indices);
    }
 
 

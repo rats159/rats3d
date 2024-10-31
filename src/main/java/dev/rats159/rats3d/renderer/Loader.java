@@ -14,12 +14,14 @@ import java.util.List;
 import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.opengl.GL33.glVertexAttribDivisor;
 
-public class Loader {
-   private final List<Integer> vaoIDs = new ArrayList<>();
-   private final List<Integer> vboIDs = new ArrayList<>();
-   public List<Integer> textureIDs = new ArrayList<>();
+public final class Loader {
+   private static final List<Integer> vaoIDs = new ArrayList<>();
+   private static final List<Integer> vboIDs = new ArrayList<>();
+   private static final List<Integer> textureIDs = new ArrayList<>();
 
-   public Model loadToVAO(float[] positions, float[] UV, float[] normals, int[] indices){
+   private Loader(){}
+
+   public static Model loadToVAO(float[] positions, float[] UV, float[] normals, int[] indices){
       int vaoID = createVAO();
       bindIndexBuffer(indices);
       storeData(0,positions,3);
@@ -29,14 +31,14 @@ public class Loader {
       return new Model(vaoID,indices.length);
    }
 
-   public Model loadToVAO(float[] positions, int dimensions) {
+   public static Model loadToVAO(float[] positions, int dimensions) {
       int vaoID = createVAO();
       storeData(0, positions, dimensions);
       unbindVAO();
       return new Model(vaoID, positions.length / dimensions);
    }
 
-   public int loadTexture(String path){
+   public static int loadTexture(String path){
       Texture texture = new Texture("res/textures/%s.png".formatted(path));
       glGenerateMipmap(GL_TEXTURE_2D);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
@@ -45,14 +47,14 @@ public class Loader {
       return id;
    }
 
-   private int createVAO(){
+   private static int createVAO(){
       int vaoID = glGenVertexArrays();
       vaoIDs.add(vaoID);
       glBindVertexArray(vaoID);
       return vaoID;
    }
 
-   private void bindIndexBuffer(int[] indices){
+   private static void bindIndexBuffer(int[] indices){
       int eboID = glGenBuffers();
       vboIDs.add(eboID); // EBOs are VBOs
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,eboID);
@@ -60,7 +62,7 @@ public class Loader {
       glBufferData(GL_ELEMENT_ARRAY_BUFFER,buffer,GL_STATIC_DRAW);
    }
 
-   public int createEmptyVBO(int floatCount){
+   public static int createEmptyVBO(int floatCount){
       int vboID = glGenBuffers();
       vboIDs.add(vboID);
       glBindBuffer(GL_ARRAY_BUFFER,vboID);
@@ -69,7 +71,7 @@ public class Loader {
       return vboID;
    }
 
-   public void updateVBO(int vboID, float[] data, FloatBuffer buffer){
+   public static void updateVBO(int vboID, float[] data, FloatBuffer buffer){
       buffer.clear();
       buffer.put(data);
       buffer.flip();
@@ -79,7 +81,7 @@ public class Loader {
       glBindBuffer(GL_ARRAY_BUFFER,0);
    }
 
-   public void addInstanceAttribute(int vaoID, int vboID, int attribute, int size, int stride, int offset){
+   public static void addInstanceAttribute(int vaoID, int vboID, int attribute, int size, int stride, int offset){
       glBindBuffer(GL_ARRAY_BUFFER, vboID);
       glBindVertexArray(vaoID);
       glVertexAttribPointer(attribute,size,GL_FLOAT,false,stride * Float.BYTES, (long) offset * Float.BYTES);
@@ -88,7 +90,7 @@ public class Loader {
       glBindVertexArray(0);
    }
 
-   private void storeData(int num, float[] data, int size){
+   private static void storeData(int num, float[] data, int size){
       int vboID = glGenBuffers();
       vboIDs.add(vboID);
       glBindBuffer(GL_ARRAY_BUFFER,vboID);
@@ -99,39 +101,39 @@ public class Loader {
       glBindBuffer(GL_ARRAY_BUFFER,0);
    }
 
-   private FloatBuffer arrToBuffer(float[] arr){
+   private static FloatBuffer arrToBuffer(float[] arr){
       FloatBuffer buffer = BufferUtils.createFloatBuffer(arr.length);
       buffer.put(arr);
       buffer.flip();
       return buffer;
    }
 
-   private IntBuffer arrToBuffer(int[] arr){
+   private static IntBuffer arrToBuffer(int[] arr){
       IntBuffer buffer = BufferUtils.createIntBuffer(arr.length);
       buffer.put(arr);
       buffer.flip();
       return buffer;
    }
 
-   private void unbindVAO(){
+   private static void unbindVAO(){
       glBindVertexArray(0);
    }
 
-   public void destroy() {
-      for(int id : this.vaoIDs){
+   public static void destroy() {
+      for(int id : vaoIDs){
          glDeleteVertexArrays(id);
       }
 
-      for(int id : this.vboIDs){
+      for(int id : vboIDs){
          glDeleteBuffers(id);
       }
 
-      for(int id : this.textureIDs){
+      for(int id : textureIDs){
          glDeleteTextures(id);
       }
    }
 
-   public Model loadModel(ModelData data) {
+   public static Model loadModel(ModelData data) {
       return loadToVAO(data.vertices(),data.textureCoords(),data.normals(),data.indices());
    }
 }

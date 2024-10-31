@@ -6,8 +6,6 @@ import dev.rats159.rats3d.input.MouseListener;
 import dev.rats159.rats3d.models.Model;
 import dev.rats159.rats3d.models.TexturedModel;
 import dev.rats159.rats3d.particle.ParticleMaster;
-import dev.rats159.rats3d.particle.ParticleSystem;
-import dev.rats159.rats3d.particle.ParticleTexture;
 import dev.rats159.rats3d.renderer.Loader;
 import dev.rats159.rats3d.renderer.RenderController;
 import dev.rats159.rats3d.renderer.Window;
@@ -23,35 +21,29 @@ import java.util.List;
 public class Main {
    public static void main(String[] args) {
       Window.create("Game Window Test");
-      Loader loader = new Loader();
-
       RenderController renderController = new RenderController();
-      ParticleMaster.init(loader,renderController.getProjectionMatrix());
+      ParticleMaster.init(renderController.getProjectionMatrix());
 
-      Model model = loader.loadModel(OBJLoader.loadOBJ("player"));
-      ModelTexture texture = new ModelTexture(loader.loadTexture("player"));
+      Model model = Loader.loadModel(OBJLoader.loadOBJ("player"));
+      ModelTexture texture = new ModelTexture(Loader.loadTexture("player"));
 
-      TerrainTexture base = new TerrainTexture(loader.loadTexture("terrain_1"));
-      TerrainTexture r = new TerrainTexture(loader.loadTexture("terrain_2"));
-      TerrainTexture g = new TerrainTexture(loader.loadTexture("terrain_3"));
-      TerrainTexture b = new TerrainTexture(loader.loadTexture("terrain_4"));
+      TerrainTexture base = new TerrainTexture(Loader.loadTexture("terrain_1"));
+      TerrainTexture r = new TerrainTexture(Loader.loadTexture("terrain_2"));
+      TerrainTexture g = new TerrainTexture(Loader.loadTexture("terrain_3"));
+      TerrainTexture b = new TerrainTexture(Loader.loadTexture("terrain_4"));
 
       TerrainMultiTexture multiTexture = new TerrainMultiTexture(base,r,g,b);
 
-      TerrainTexture blendMap = new TerrainTexture(loader.loadTexture("terrain_blend"));
+      TerrainTexture blendMap = new TerrainTexture(Loader.loadTexture("terrain_blend"));
 
 
-      Terrain terrain = new Terrain(0,0,loader,multiTexture,blendMap,"terrain_height");
+      Terrain terrain = new Terrain(0,0,multiTexture,blendMap,"terrain_height");
 
       TexturedModel playerModel = new TexturedModel(model, texture);
       Player player = new Player(playerModel,new Vector3f(4,0,0));
       Entity reference1 = new Entity(playerModel, new Vector3f(0,0,0), new Vector3f(0,0,0), 1);
       Entity reference2 = new Entity(playerModel, new Vector3f(2,0,0), new Vector3f(0,0,0), 1);
       Camera camera = new Camera(player);
-
-      ParticleTexture particleTexture = new ParticleTexture(loader.loadTexture("particleAtlas"),4);
-
-      ParticleSystem particleSystem = new ParticleSystem(particleTexture);
 
       List<Tower> towers = new ArrayList<>();
 
@@ -93,7 +85,7 @@ public class Main {
 
       ParticleMaster.destroy();
       renderController.destroy();
-      loader.destroy();
+      Loader.destroy();
       Window.destroy();
    }
 }
