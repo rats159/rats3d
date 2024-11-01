@@ -1,6 +1,9 @@
 package dev.rats159.rats3d.terrain;
 
+import dev.rats159.rats3d.assets.Texture;
 import dev.rats159.rats3d.models.Model;
+import dev.rats159.rats3d.models.ModelData;
+import dev.rats159.rats3d.models.OBJModelData;
 import dev.rats159.rats3d.renderer.Loader;
 import dev.rats159.rats3d.util.MathHelper;
 import org.joml.Vector2f;
@@ -20,16 +23,13 @@ public class Terrain {
    private final float z;
    private final Model model;
    private final TerrainMultiTexture textures;
-   private final TerrainTexture blendMap;
-
    private float[][] heights;
 
-   public Terrain(int gridX, int gridZ, TerrainMultiTexture textures, TerrainTexture blendMap, String heightmap){
+   public Terrain(int gridX, int gridZ, TerrainMultiTexture textures, String heightmap){
       this.x = gridX * SIZE;
       this.z = gridZ * SIZE;
       this.model = generateTerrain(heightmap);
       this.textures = textures;
-      this.blendMap = blendMap;
    }
 
    private Model generateTerrain(String heightmap){
@@ -80,7 +80,9 @@ public class Terrain {
             indices[pointer++] = bottomRight;
          }
       }
-      return Loader.loadToVAO(vertices, textureCoords, normals, indices);
+      ModelData data = new OBJModelData(vertices, textureCoords, normals, indices);
+      int vaoData = Loader.modelDataToVAO(data);
+      return new Model(vaoData, data);
    }
 
 
@@ -92,8 +94,8 @@ public class Terrain {
       return textures;
    }
 
-   public TerrainTexture getBlendMap() {
-      return blendMap;
+   public Texture getBlendMap() {
+      return textures.blendMap();
    }
 
    public float getX() {

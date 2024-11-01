@@ -2,16 +2,15 @@ package dev.rats159.rats3d.assets;
 
 import org.lwjgl.BufferUtils;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.IntBuffer;
 
-import javax.imageio.ImageIO;
-
 import static org.lwjgl.opengl.GL11.*;
 
-public class Texture {
+public class Texture extends Asset{
 
    private int width, height;
    private final int id;

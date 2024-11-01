@@ -107,4 +107,6 @@ public abstract class Shader {
 
       return shaderID;
    }
+
+   public abstract void enableAttributes();
 }

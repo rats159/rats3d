@@ -2,6 +2,7 @@ package dev.rats159.rats3d.particle;
 
 import dev.rats159.rats3d.entities.Camera;
 import dev.rats159.rats3d.models.Model;
+import dev.rats159.rats3d.models.ParticleModelData;
 import dev.rats159.rats3d.renderer.Loader;
 import dev.rats159.rats3d.util.MathHelper;
 import org.joml.Matrix4f;
@@ -16,7 +17,6 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
-import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL31.glDrawArraysInstanced;
 
@@ -39,7 +39,8 @@ public class ParticleRenderer {
    protected ParticleRenderer(Matrix4f projectionMatrix){
       this.vboID = Loader.createEmptyVBO(INSTANCE_DATA_LENGTH * MAX_INSTANCES);
 
-      quad = Loader.loadToVAO(QUAD_VERTICES,2);
+      Loader.loadModel("particle_quad",new ParticleModelData(QUAD_VERTICES));
+      this.quad = Loader.getModel("particle_quad");
 
       Loader.addInstanceAttribute(quad.vaoID(),vboID,1,4,INSTANCE_DATA_LENGTH,0);
       Loader.addInstanceAttribute(quad.vaoID(),vboID,2,4,INSTANCE_DATA_LENGTH,4);
@@ -55,10 +56,10 @@ public class ParticleRenderer {
       shader.stop();
    }
 
-   protected void render(Map<ParticleTexture,List<Particle>> particles, Camera camera){
+   protected void render(Map<TextureAtlas,List<Particle>> particles, Camera camera){
       Matrix4f viewMatrix = MathHelper.createViewMatrix(camera);
       prepare();
-      for(ParticleTexture texture : particles.keySet()) {
+      for(TextureAtlas texture : particles.keySet()) {
          bindTexture(texture);
          List<Particle> particleList = particles.get(texture);
 
@@ -85,7 +86,7 @@ public class ParticleRenderer {
       data[pointer++] = particle.getBlendFactor();
    }
 
-   private void bindTexture(ParticleTexture texture){
+   private void bindTexture(TextureAtlas texture){
       glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D,texture.getID());
       shader.loadRowCount(texture.rowCount());
@@ -139,13 +140,7 @@ public class ParticleRenderer {
    private void prepare(){
       shader.start();
       glBindVertexArray(quad.vaoID());
-      glEnableVertexAttribArray(0);
-      glEnableVertexAttribArray(1);
-      glEnableVertexAttribArray(2);
-      glEnableVertexAttribArray(3);
-      glEnableVertexAttribArray(4);
-      glEnableVertexAttribArray(5);
-      glEnableVertexAttribArray(6);
+      shader.enableAttributes();
       glEnable(GL_BLEND);
       glBlendFunc(GL_SRC_ALPHA,GL_ONE);
       glDepthMask(false);

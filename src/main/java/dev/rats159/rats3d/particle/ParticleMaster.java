@@ -7,7 +7,7 @@ import org.joml.Matrix4f;
 import java.util.*;
 
 public class ParticleMaster {
-   private static final Map<ParticleTexture,List<Particle>> particles = new HashMap<>();
+   private static final Map<TextureAtlas,List<Particle>> particles = new HashMap<>();
    private static ParticleRenderer renderer;
 
    public static void init(Matrix4f projectionMatrix){
@@ -15,7 +15,7 @@ public class ParticleMaster {
    }
 
    public static void update(Camera camera){
-      Iterator<Map.Entry<ParticleTexture, List<Particle>>> mapIterator = particles.entrySet().iterator();
+      Iterator<Map.Entry<TextureAtlas, List<Particle>>> mapIterator = particles.entrySet().iterator();
 
       while(mapIterator.hasNext()){
          List<Particle> list = mapIterator.next().getValue();

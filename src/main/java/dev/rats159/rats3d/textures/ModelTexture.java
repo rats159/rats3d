@@ -1,13 +1,15 @@
 package dev.rats159.rats3d.textures;
 
+import dev.rats159.rats3d.assets.Texture;
+
 public class ModelTexture {
    private final int textureId;
 
    private float shineDamper = 1;
    private float reflectivity;
 
-   public ModelTexture(int id){
-      this.textureId = id;
+   public ModelTexture(Texture texture){
+      this.textureId = texture.getID();
    }
 
    public int getTextureId() {

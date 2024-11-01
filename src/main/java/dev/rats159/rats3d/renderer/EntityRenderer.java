@@ -46,9 +46,8 @@ public class EntityRenderer {
    private void prepareTexturedModel(TexturedModel texturedModel){
       Model model = texturedModel.model();
       glBindVertexArray(model.vaoID());
-      glEnableVertexAttribArray(0);
-      glEnableVertexAttribArray(1);
-      glEnableVertexAttribArray(2);
+      shader.enableAttributes();
+
       ModelTexture texture = texturedModel.texture();
       glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D,texturedModel.texture().getTextureId());

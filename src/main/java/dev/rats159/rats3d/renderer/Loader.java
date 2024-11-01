@@ -1,9 +1,13 @@
 package dev.rats159.rats3d.renderer;
 
 
+import dev.rats159.rats3d.assets.AssetGroup;
+import dev.rats159.rats3d.assets.OBJLoader;
 import dev.rats159.rats3d.assets.Texture;
 import dev.rats159.rats3d.models.Model;
 import dev.rats159.rats3d.models.ModelData;
+import dev.rats159.rats3d.models.OBJModelData;
+import dev.rats159.rats3d.models.ParticleModelData;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
@@ -15,36 +19,40 @@ import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.opengl.GL33.glVertexAttribDivisor;
 
 public final class Loader {
+   private static final AssetGroup<Texture> textures = new AssetGroup<>();
+   private static final AssetGroup<Model> models = new AssetGroup<>();
+
    private static final List<Integer> vaoIDs = new ArrayList<>();
    private static final List<Integer> vboIDs = new ArrayList<>();
    private static final List<Integer> textureIDs = new ArrayList<>();
 
    private Loader(){}
 
-   public static Model loadToVAO(float[] positions, float[] UV, float[] normals, int[] indices){
-      int vaoID = createVAO();
-      bindIndexBuffer(indices);
-      storeData(0,positions,3);
-      storeData(1,UV,2);
-      storeData(2,normals,3);
-      unbindVAO();
-      return new Model(vaoID,indices.length);
+   public static void loadModel(String name){
+      OBJModelData data = OBJLoader.loadOBJ(name);
+      int id = modelDataToVAO(data);
+      models.put(name,new Model(id,data));
    }
 
-   public static Model loadToVAO(float[] positions, int dimensions) {
-      int vaoID = createVAO();
-      storeData(0, positions, dimensions);
-      unbindVAO();
-      return new Model(vaoID, positions.length / dimensions);
+   public static void loadModel(String name, ParticleModelData data) {
+      int vaoID = modelDataToVAO(data);
+      models.put(name,new Model(vaoID, data));
    }
 
-   public static int loadTexture(String path){
-      Texture texture = new Texture("res/textures/%s.png".formatted(path));
+   public static int modelDataToVAO(ModelData data){
+      int vaoID = createVAO();
+      data.store();
+      unbindVAO();
+      return vaoID;
+   }
+
+   public static void loadTexture(String name){
+      Texture texture = new Texture("res/textures/%s.png".formatted(name));
       glGenerateMipmap(GL_TEXTURE_2D);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
       int id = texture.getID();
       textureIDs.add(id);
-      return id;
+      textures.put(name,texture);
    }
 
    private static int createVAO(){
@@ -54,7 +62,7 @@ public final class Loader {
       return vaoID;
    }
 
-   private static void bindIndexBuffer(int[] indices){
+   public static void bindIndexBuffer(int[] indices){
       int eboID = glGenBuffers();
       vboIDs.add(eboID); // EBOs are VBOs
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,eboID);
@@ -90,7 +98,7 @@ public final class Loader {
       glBindVertexArray(0);
    }
 
-   private static void storeData(int num, float[] data, int size){
+   public static void storeData(int num, float[] data, int size){
       int vboID = glGenBuffers();
       vboIDs.add(vboID);
       glBindBuffer(GL_ARRAY_BUFFER,vboID);
@@ -133,7 +141,11 @@ public final class Loader {
       }
    }
 
-   public static Model loadModel(ModelData data) {
-      return loadToVAO(data.vertices(),data.textureCoords(),data.normals(),data.indices());
+   public static Texture getTexture(String name){
+      return textures.get(name);
+   }
+
+   public static Model getModel(String name) {
+      return models.get(name);
    }
 }

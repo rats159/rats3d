@@ -5,13 +5,13 @@ import dev.rats159.rats3d.renderer.Window;
 import org.joml.Vector3f;
 
 public class ParticleSystem {
-   private final ParticleTexture texture;
+   private final TextureAtlas texture;
    private final float pps = 100;
    private final float speed = .02f;
    private final float gravityCompliant = 0;
    private final float lifeLength = 1000;
 
-   public ParticleSystem(ParticleTexture texture) {
+   public ParticleSystem(TextureAtlas texture) {
       this.texture = texture;
    }
 

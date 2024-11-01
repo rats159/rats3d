@@ -6,6 +6,8 @@ import dev.rats159.rats3d.util.MathHelper;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
+import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
+
 public class TerrainShader extends Shader{
    public static final int MAX_LIGHTS_PER_VERT = 29;
 
@@ -21,6 +23,13 @@ public class TerrainShader extends Shader{
       super.bindAttribute(0,"aPos");
       super.bindAttribute(1,"aUV");
       super.bindAttribute(2,"aNormal");
+   }
+
+   @Override
+   public void enableAttributes() {
+      glEnableVertexAttribArray(0);
+      glEnableVertexAttribArray(1);
+      glEnableVertexAttribArray(2);
    }
 
 

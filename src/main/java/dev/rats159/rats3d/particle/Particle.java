@@ -14,7 +14,7 @@ public class Particle {
    private final float rotation;
    private final float scale;
 
-   private final ParticleTexture texture;
+   private final TextureAtlas texture;
 
    private final Vector2f texOffset1 = new Vector2f();
    private final Vector2f texOffset2 = new Vector2f();
@@ -23,7 +23,7 @@ public class Particle {
    private float life = 0;
    private float distance;
 
-   public Particle(ParticleTexture texture, Vector3f position, Vector3f velocity, float massFactor, float lifespan, float rotation, float scale) {
+   public Particle(TextureAtlas texture, Vector3f position, Vector3f velocity, float massFactor, float lifespan, float rotation, float scale) {
       this.position = position;
       this.velocity = velocity;
       this.massFactor = massFactor;
@@ -46,7 +46,7 @@ public class Particle {
       return scale;
    }
 
-   public ParticleTexture getTexture() {
+   public TextureAtlas getTexture() {
       return texture;
    }
 

@@ -12,7 +12,6 @@ import java.util.List;
 
 import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
-import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 
 public class TerrainRenderer {
@@ -40,9 +39,7 @@ public class TerrainRenderer {
    private void prepareTerrain(Terrain terrain){
       Model model = terrain.getModel();
       glBindVertexArray(model.vaoID());
-      glEnableVertexAttribArray(0);
-      glEnableVertexAttribArray(1);
-      glEnableVertexAttribArray(2);
+      shader.enableAttributes();
       bindTextures(terrain);
       shader.loadShine(1,0);
 
@@ -51,15 +48,15 @@ public class TerrainRenderer {
    private void bindTextures(Terrain terrain){
       TerrainMultiTexture textures = terrain.getTextures();
       glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_2D,textures.background().textureID());
+      glBindTexture(GL_TEXTURE_2D,textures.background().getID());
       glActiveTexture(GL_TEXTURE1);
-      glBindTexture(GL_TEXTURE_2D,textures.r().textureID());
+      glBindTexture(GL_TEXTURE_2D,textures.r().getID());
       glActiveTexture(GL_TEXTURE2);
-      glBindTexture(GL_TEXTURE_2D,textures.g().textureID());
+      glBindTexture(GL_TEXTURE_2D,textures.g().getID());
       glActiveTexture(GL_TEXTURE3);
-      glBindTexture(GL_TEXTURE_2D,textures.b().textureID());
+      glBindTexture(GL_TEXTURE_2D,textures.b().getID());
       glActiveTexture(GL_TEXTURE4);
-      glBindTexture(GL_TEXTURE_2D,terrain.getBlendMap().textureID());
+      glBindTexture(GL_TEXTURE_2D,terrain.getBlendMap().getID());
    }
 
    private void unbindTerrain(){

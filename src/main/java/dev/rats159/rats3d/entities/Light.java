@@ -40,4 +40,8 @@ public class Light {
    public void setAttenuation(Vector3f attenuation){
       this.attenuation.set(attenuation);
    }
+
+   public void moveY(float y){
+      this.position.y += y;
+   }
 }
