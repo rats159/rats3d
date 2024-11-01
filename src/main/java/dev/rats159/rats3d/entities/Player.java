@@ -43,7 +43,6 @@ public class Player extends Entity {
          this.motion.x /= horizontalLength;
          this.motion.z /= horizontalLength;
          float rot = (float) Math.toDegrees(Math.atan2(dz, dx)) - 90;
-         System.out.println(rot);
          super.setRotation(0, rot, 0);
       }
 
