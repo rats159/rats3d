@@ -6,41 +6,30 @@ import dev.rats159.rats3d.models.ModelData;
 import dev.rats159.rats3d.models.OBJModelData;
 import dev.rats159.rats3d.renderer.Loader;
 import dev.rats159.rats3d.util.MathHelper;
-import org.joml.Vector2f;
-import org.joml.Vector3f;
+import dev.rats159.rats3d.util.math.Vector2f;
+import dev.rats159.rats3d.util.math.Vector3f;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-
-public class Terrain {
+public class Chunk {
    public final static float SIZE = 800;
-   private static final float MAX_HEIGHT = 40;
-   private static final float MAX_PIXEL_COLOR = 256 * 256 * 256;
+   public static final int VERTEX_COUNT = 64;
 
    private final float x;
    private final float z;
    private final Model model;
-   private final TerrainMultiTexture textures;
+   private final Texture texture;
    private float[][] heights;
 
-   public Terrain(int gridX, int gridZ, TerrainMultiTexture textures, String heightmap){
+   public Chunk(int gridX, int gridZ, Texture texture){
       this.x = gridX * SIZE;
       this.z = gridZ * SIZE;
-      this.model = generateTerrain(heightmap);
-      this.textures = textures;
+      this.model = generateTerrain();
+      this.texture = texture;
    }
 
-   private Model generateTerrain(String heightmap){
-      BufferedImage image;
-      try {
-         image = ImageIO.read(new File("res/textures/"+heightmap+".png"));
-      }catch (IOException e){
-         throw new RuntimeException(e);
-      }
+   private Model generateTerrain(){
+      TerrainGenerator generator = new TerrainGenerator();
 
-      final int VERTEX_COUNT = image.getHeight();
+
       this.heights = new float[VERTEX_COUNT][VERTEX_COUNT];
 
       int count = VERTEX_COUNT * VERTEX_COUNT;
@@ -52,14 +41,14 @@ public class Terrain {
       for(int i=0;i<VERTEX_COUNT;i++){
          for(int j=0;j<VERTEX_COUNT;j++){
             vertices[vertexPointer*3] = (float)j/((float)VERTEX_COUNT - 1) * SIZE;
-            float height = readHeightmap(j,i,image);
+            float height = readHeightmap(j,i,generator);
             heights[j][i] = height;
             vertices[vertexPointer*3+1] = height;
             vertices[vertexPointer*3+2] = (float)i/((float)VERTEX_COUNT - 1) * SIZE;
-            Vector3f normal = calculateNormal(j,i,image);
-            normals[vertexPointer*3] = normal.x;
-            normals[vertexPointer*3+1] = normal.y;
-            normals[vertexPointer*3+2] = normal.z;
+            Vector3f normal = calculateNormal(j,i,generator);
+            normals[vertexPointer*3] = normal.x();
+            normals[vertexPointer*3+1] = normal.y();
+            normals[vertexPointer*3+2] = normal.z();
             textureCoords[vertexPointer*2] = (float)j/((float)VERTEX_COUNT - 1);
             textureCoords[vertexPointer*2+1] = (float)i/((float)VERTEX_COUNT - 1);
             vertexPointer++;
@@ -90,12 +79,8 @@ public class Terrain {
       return model;
    }
 
-   public TerrainMultiTexture getTextures() {
-      return textures;
-   }
-
-   public Texture getBlendMap() {
-      return textures.blendMap();
+   public Texture getTexture() {
+      return texture;
    }
 
    public float getX() {
@@ -106,27 +91,23 @@ public class Terrain {
       return z;
    }
 
-   private Vector3f calculateNormal(int x, int y, BufferedImage image){
-      float height1 = readHeightmap(x-1,y,image);
-      float height2 = readHeightmap(x+1,y,image);
-      float height3 = readHeightmap(x,y-1,image);
-      float height4 = readHeightmap(x,y+1,image);
+   private Vector3f calculateNormal(int x, int y, TerrainGenerator generator){
+      float height1 = readHeightmap(x-1,y,generator);
+      float height2 = readHeightmap(x+1,y,generator);
+      float height3 = readHeightmap(x,y-1,generator);
+      float height4 = readHeightmap(x,y+1,generator);
 
       Vector3f normal = new Vector3f(height1 - height2, 2, height3 - height4);
       normal.normalize();
       return normal;
    }
 
-   private float readHeightmap(int x, int y, BufferedImage image){
-      if(x < 0 || x >= image.getWidth() || y < 0 || y >= image.getHeight()){
-         return 0;
-      }
+   private float readHeightmap(int x, int y, TerrainGenerator generator){
+      return generator.getHeight(x,y);
+   }
 
-      float height = image.getRGB(x,y);
-      height += MAX_PIXEL_COLOR / 2f;
-      height /= MAX_PIXEL_COLOR / 2f;
-      height *= MAX_HEIGHT;
-      return  height;
+   public float getHeight(Vector2f pos){
+      return getHeight(pos.x(),pos.y());
    }
 
    public float getHeight(float worldX, float worldZ){

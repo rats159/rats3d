@@ -2,9 +2,10 @@ package dev.rats159.rats3d.particle;
 
 import dev.rats159.rats3d.entities.Camera;
 import dev.rats159.rats3d.entities.Player;
-import dev.rats159.rats3d.renderer.Window;
-import org.joml.Vector2f;
-import org.joml.Vector3f;
+import dev.rats159.rats3d.time.Time;
+import dev.rats159.rats3d.time.TimeUnit;
+import dev.rats159.rats3d.util.math.Vector2f;
+import dev.rats159.rats3d.util.math.Vector3f;
 
 public class Particle {
    private final Vector3f position;
@@ -16,8 +17,8 @@ public class Particle {
 
    private final TextureAtlas texture;
 
-   private final Vector2f texOffset1 = new Vector2f();
-   private final Vector2f texOffset2 = new Vector2f();
+   private final Vector2f texOffset1 = new Vector2f(0);
+   private final Vector2f texOffset2 = new Vector2f(0);
    private float blendFactor;
 
    private float life = 0;
@@ -51,13 +52,13 @@ public class Particle {
    }
 
    protected boolean tick(Camera camera){
-      velocity.y += Player.GRAVITY * massFactor * Window.getDelta();
+      velocity.addAssignY((float) (Player.GRAVITY * massFactor * Time.delta(TimeUnit.SECONDS)));
       Vector3f deltaPos = new Vector3f(velocity);
-      deltaPos.mul(Window.getDelta());
-      position.add(deltaPos);
-      distance = camera.getPosition().sub(position,new Vector3f()).lengthSquared();
+      deltaPos.mulAssign((float) Time.delta(TimeUnit.MILLISECONDS));
+      position.addAssign(deltaPos);
+      distance = camera.getPosition().sub(position).lengthSquared();
       updateTexCoords();
-      life += Window.getDelta();
+      life += (float) Time.delta(TimeUnit.SECONDS);
       return life < lifespan;
    }
 
@@ -76,8 +77,8 @@ public class Particle {
    private  void setTextureOffset(Vector2f offset, int index){
       int column = index % texture.rowCount();
       int row = index / texture.rowCount();
-      offset.x = (float) column / texture.rowCount();
-      offset.y = (float) row / texture.rowCount();
+      offset.x((float) column / texture.rowCount());
+      offset.y((float) row / texture.rowCount());
    }
 
    public float getBlendFactor() {

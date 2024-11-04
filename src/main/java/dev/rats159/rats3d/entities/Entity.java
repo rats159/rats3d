@@ -1,7 +1,7 @@
 package dev.rats159.rats3d.entities;
 
 import dev.rats159.rats3d.models.TexturedModel;
-import org.joml.Vector3f;
+import dev.rats159.rats3d.util.math.Vector3f;
 
 public class Entity {
    protected TexturedModel model;
@@ -18,7 +18,11 @@ public class Entity {
    }
 
    public void move(float dx, float dy, float dz){
-      this.position.add(dx,dy,dz);
+      this.position.addAssign(dx,dy,dz);
+   }
+
+   public void move(Vector3f delta){
+      this.position.addAssign(delta);
    }
 
    public void rotate(float dx, float dy, float dz){
@@ -62,14 +66,14 @@ public class Entity {
    }
 
    public float x(){
-      return this.position.x;
+      return this.position.x();
    }
 
    public float y(){
-      return this.position.y;
+      return this.position.y();
    }
 
    public float z(){
-      return this.position.z;
+      return this.position.z();
    }
 }

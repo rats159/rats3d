@@ -1,12 +1,12 @@
 package dev.rats159.rats3d.renderer;
 
+import dev.rats159.rats3d.assets.Texture;
 import dev.rats159.rats3d.models.Model;
 import dev.rats159.rats3d.shaders.TerrainShader;
-import dev.rats159.rats3d.terrain.Terrain;
-import dev.rats159.rats3d.terrain.TerrainMultiTexture;
+import dev.rats159.rats3d.terrain.Chunk;
 import dev.rats159.rats3d.util.MathHelper;
+import dev.rats159.rats3d.util.math.Vector3f;
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
 
 import java.util.List;
 
@@ -25,38 +25,30 @@ public class TerrainRenderer {
       shader.stop();
    }
 
-   public void render(List<Terrain> terrains){
-      for(Terrain terrain : terrains){
-         prepareTerrain(terrain);
-         loadModelMatrix(terrain);
+   public void render(List<Chunk> chunks){
+      for(Chunk chunk : chunks){
+         prepareTerrain(chunk);
+         loadModelMatrix(chunk);
 
-         glDrawElements(GL_TRIANGLES, terrain.getModel().vertexCount(), GL_UNSIGNED_INT, 0);
+         glDrawElements(GL_TRIANGLES, chunk.getModel().vertexCount(), GL_UNSIGNED_INT, 0);
 
          unbindTerrain();
       }
    }
 
-   private void prepareTerrain(Terrain terrain){
-      Model model = terrain.getModel();
+   private void prepareTerrain(Chunk chunk){
+      Model model = chunk.getModel();
       glBindVertexArray(model.vaoID());
       shader.enableAttributes();
-      bindTextures(terrain);
-      shader.loadShine(1,0);
+      bindTextures(chunk);
+      shader.loadShine(1,0f);
 
    }
 
-   private void bindTextures(Terrain terrain){
-      TerrainMultiTexture textures = terrain.getTextures();
+   private void bindTextures(Chunk chunk){
+      Texture texture = chunk.getTexture();
       glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_2D,textures.background().getID());
-      glActiveTexture(GL_TEXTURE1);
-      glBindTexture(GL_TEXTURE_2D,textures.r().getID());
-      glActiveTexture(GL_TEXTURE2);
-      glBindTexture(GL_TEXTURE_2D,textures.g().getID());
-      glActiveTexture(GL_TEXTURE3);
-      glBindTexture(GL_TEXTURE_2D,textures.b().getID());
-      glActiveTexture(GL_TEXTURE4);
-      glBindTexture(GL_TEXTURE_2D,terrain.getBlendMap().getID());
+      glBindTexture(GL_TEXTURE_2D,texture.getID());
    }
 
    private void unbindTerrain(){
@@ -66,19 +58,11 @@ public class TerrainRenderer {
       glBindVertexArray(0);
       glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D,0);
-      glActiveTexture(GL_TEXTURE1);
-      glBindTexture(GL_TEXTURE_2D,0);
-      glActiveTexture(GL_TEXTURE2);
-      glBindTexture(GL_TEXTURE_2D,0);
-      glActiveTexture(GL_TEXTURE3);
-      glBindTexture(GL_TEXTURE_2D,0);
-      glActiveTexture(GL_TEXTURE4);
-      glBindTexture(GL_TEXTURE_2D,0);
    }
 
-   private void loadModelMatrix(Terrain terrain){
+   private void loadModelMatrix(Chunk chunk){
       Matrix4f transformation = MathHelper.createTransformationMatrix(
-        new Vector3f(terrain.getX(),0,terrain.getZ()), new Vector3f(0), 1);
+        new Vector3f(chunk.getX(),0, chunk.getZ()), new Vector3f(0), 1);
       shader.loadTransformationMatrix(transformation);
    }
 }

@@ -1,7 +1,7 @@
 package dev.rats159.rats3d.input;
 
 import dev.rats159.rats3d.renderer.Window;
-import org.joml.Vector2f;
+import dev.rats159.rats3d.util.math.Vector2f;
 import org.lwjgl.glfw.GLFWCursorPosCallbackI;
 import org.lwjgl.glfw.GLFWMouseButtonCallbackI;
 import org.lwjgl.glfw.GLFWScrollCallbackI;

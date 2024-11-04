@@ -1,8 +1,8 @@
 package dev.rats159.rats3d.shaders;
 
 import org.joml.Matrix4f;
-import org.joml.Vector2f;
-import org.joml.Vector3f;
+import dev.rats159.rats3d.util.math.Vector2f;
+import dev.rats159.rats3d.util.math.Vector3f;
 import org.lwjgl.BufferUtils;
 
 import java.io.IOException;
@@ -75,11 +75,11 @@ public abstract class Shader {
    }
 
    protected void loadVector3f(String name, Vector3f value){
-      glUniform3f(getUniformLocation(name),value.x,value.y,value.z);
+      glUniform3f(getUniformLocation(name),value.x(),value.y(),value.z());
    }
 
    protected void loadVector2f(String name, Vector2f value){
-      glUniform2f(getUniformLocation(name),value.x,value.y);
+      glUniform2f(getUniformLocation(name),value.x(),value.y());
    }
 
    protected int getUniformLocation(String name){

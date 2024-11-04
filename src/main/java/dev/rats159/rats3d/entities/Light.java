@@ -1,6 +1,6 @@
 package dev.rats159.rats3d.entities;
 
-import org.joml.Vector3f;
+import dev.rats159.rats3d.util.math.Vector3f;
 
 public class Light {
    private final Vector3f position;
@@ -16,6 +16,7 @@ public class Light {
       this.color = color;
       this.attenuation = attenuation;
    }
+
 
    public Vector3f getPosition() {
       return position;
@@ -33,15 +34,15 @@ public class Light {
       this.position.set(position);
    }
 
+   public void setPosition(float x, float y, float z) {
+      this.position.set(x,y,z);
+   }
+
    public void setColor(Vector3f color){
       this.color.set(color);
    }
 
    public void setAttenuation(Vector3f attenuation){
       this.attenuation.set(attenuation);
-   }
-
-   public void moveY(float y){
-      this.position.y += y;
    }
 }

@@ -1,6 +1,6 @@
 package dev.rats159.rats3d.models;
 
-import org.joml.Vector3f;
+import dev.rats159.rats3d.util.math.Vector3f;
 
 public class Vertex {
 
@@ -11,20 +11,13 @@ public class Vertex {
    private int normalIndex = NO_INDEX;
    private Vertex duplicateVertex = null;
    private final int index;
-   private final float length;
-
    public Vertex(int index,Vector3f position){
       this.index = index;
       this.position = position;
-      this.length = position.length();
    }
 
    public int getIndex(){
       return index;
-   }
-
-   public float getLength(){
-      return length;
    }
 
    public boolean isSet(){

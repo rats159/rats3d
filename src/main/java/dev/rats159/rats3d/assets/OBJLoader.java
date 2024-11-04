@@ -2,8 +2,8 @@ package dev.rats159.rats3d.assets;
 
 import dev.rats159.rats3d.models.OBJModelData;
 import dev.rats159.rats3d.models.Vertex;
-import org.joml.Vector2f;
-import org.joml.Vector3f;
+import dev.rats159.rats3d.util.math.Vector2f;
+import dev.rats159.rats3d.util.math.Vector3f;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -89,23 +89,19 @@ public class OBJLoader {
    private static void convertDataToArrays(List<Vertex> vertices, List<Vector2f> textures,
                                            List<Vector3f> normals, float[] verticesArray, float[] texturesArray,
                                            float[] normalsArray) {
-      float furthestPoint = 0;
       for (int i = 0; i < vertices.size(); i++) {
          Vertex currentVertex = vertices.get(i);
-         if (currentVertex.getLength() > furthestPoint) {
-            furthestPoint = currentVertex.getLength();
-         }
          Vector3f position = currentVertex.getPosition();
          Vector2f textureCoord = textures.get(currentVertex.getTextureIndex());
          Vector3f normalVector = normals.get(currentVertex.getNormalIndex());
-         verticesArray[i * 3] = position.x;
-         verticesArray[i * 3 + 1] = position.y;
-         verticesArray[i * 3 + 2] = position.z;
-         texturesArray[i * 2] = textureCoord.x;
-         texturesArray[i * 2 + 1] = 1 - textureCoord.y;
-         normalsArray[i * 3] = normalVector.x;
-         normalsArray[i * 3 + 1] = normalVector.y;
-         normalsArray[i * 3 + 2] = normalVector.z;
+         verticesArray[i * 3] = position.x();
+         verticesArray[i * 3 + 1] = position.y();
+         verticesArray[i * 3 + 2] = position.z();
+         texturesArray[i * 2] = textureCoord.x();
+         texturesArray[i * 2 + 1] = 1 - textureCoord.y();
+         normalsArray[i * 3] = normalVector.x();
+         normalsArray[i * 3 + 1] = normalVector.y();
+         normalsArray[i * 3 + 2] = normalVector.z();
       }
    }
 

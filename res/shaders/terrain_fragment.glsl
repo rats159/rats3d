@@ -1,7 +1,7 @@
 #version 400 core
 
 #define MAX_LIGHTS_PER_VERT 29
-#define MIN_AMBIENT_LIGHT .2
+#define MIN_AMBIENT_LIGHT .1
 
 in vec2 fUV;
 in vec3 fNormal;
@@ -11,11 +11,7 @@ in float fVisibility;
 
 out vec4 outColor;
 
-uniform sampler2D backgroundTex;
-uniform sampler2D rTex;
-uniform sampler2D gTex;
-uniform sampler2D bTex;
-uniform sampler2D blendMap;
+uniform sampler2D uTex;
 
 uniform vec3 uLightColor[MAX_LIGHTS_PER_VERT];
 uniform vec3 uAttenuation[MAX_LIGHTS_PER_VERT];
@@ -24,16 +20,7 @@ uniform float uReflectivity;
 uniform vec3 uSkyColor;
 
 void main(void){
-    vec4 blendMapColor = texture(blendMap, fUV);
-
-    float backgroundTexAmount = 1 - (blendMapColor.r + blendMapColor.g + blendMapColor.b);
-    vec2 tiledCoords = fUV * 40;
-    vec4 bgTexColor = texture(backgroundTex, tiledCoords) * backgroundTexAmount;
-    vec4 rTexColor = texture(rTex, tiledCoords) * blendMapColor.r;
-    vec4 gTexColor = texture(gTex, tiledCoords) * blendMapColor.g;
-    vec4 bTexColor = texture(bTex, tiledCoords) * blendMapColor.b;
-
-    vec4 totalColor = bgTexColor + rTexColor + gTexColor + bTexColor;
+    vec4 albedo = texture(uTex, fUV);
 
     vec3 unitNormal = normalize(fNormal);
     vec3 unitCameraDir = normalize(fCameraDir);
@@ -46,6 +33,7 @@ void main(void){
 
         vec3 currentAttenuation = uAttenuation[i];
         float attenuationFactor = currentAttenuation.x + currentAttenuation.y * distance + currentAttenuation.z * distance * distance;
+        attenuationFactor = max(attenuationFactor, 0.001);
 
         vec3 unitLightDir = normalize(fLightDir[i]);
         float normalDotLight = dot(unitNormal, unitLightDir);
@@ -55,7 +43,7 @@ void main(void){
         vec3 lightDir = -unitLightDir;
         vec3 reflectedLightDir = reflect(lightDir, unitNormal);
 
-        float specularFactor = max(dot(reflectedLightDir, unitCameraDir), 0f);
+        float specularFactor = max(dot(reflectedLightDir, unitCameraDir), 0.0);
         float dampenedSpecularFactor = pow(specularFactor, uShineDamper);
 
         vec3 diffuseLightColor = brightness * uLightColor[i] / attenuationFactor;
@@ -65,9 +53,8 @@ void main(void){
         totalSpecular += specularLightColor;
     }
 
-    totalDiffuse = max(totalDiffuse,MIN_AMBIENT_LIGHT);
+    totalDiffuse = max(totalDiffuse,vec3(MIN_AMBIENT_LIGHT));
 
-
-    outColor = vec4(totalDiffuse, 1) * totalColor + vec4(totalSpecular,1);
+    outColor = vec4(totalDiffuse, 1) * albedo + vec4(totalSpecular,1);
     outColor = mix(vec4(uSkyColor,1),outColor,fVisibility);
 }

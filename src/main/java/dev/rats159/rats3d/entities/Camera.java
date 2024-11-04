@@ -1,12 +1,12 @@
 package dev.rats159.rats3d.entities;
 
 import dev.rats159.rats3d.input.MouseListener;
-import org.joml.Vector3f;
+import dev.rats159.rats3d.util.math.Vector3f;
 
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Camera {
-   private final Vector3f position = new Vector3f(0,0,0);
+   private final Vector3f position = new Vector3f(0, 0, 0);
    private float pitch;
    private float yaw;
 
@@ -15,12 +15,12 @@ public class Camera {
 
    private final Player player;
 
-   public Camera(Player player){
+   public Camera(Player player) {
       this.player = player;
       player.setCamera(this);
    }
 
-   public void tick(){
+   public void tick() {
       calculateZoom();
       calculatePitch();
       calculateAngleAround();
@@ -28,7 +28,7 @@ public class Camera {
       float horizontalDistance = calculateHorizontalDistance();
       float verticalDistance = calculateVerticalDistance();
 
-      calculatePosition(horizontalDistance,verticalDistance);
+      calculatePosition(horizontalDistance, verticalDistance);
       this.yaw = 180 - angleAround;
    }
 
@@ -48,21 +48,21 @@ public class Camera {
       return player;
    }
 
-   private void calculateZoom(){
+   private void calculateZoom() {
       float zoomLevel = (float) (MouseListener.getScrollY() * 2);
       this.zoom -= zoomLevel;
    }
 
-   private void calculatePitch(){
-      if(MouseListener.isButtonDown(GLFW_MOUSE_BUTTON_RIGHT)){
+   private void calculatePitch() {
+      if (MouseListener.isButtonDown(GLFW_MOUSE_BUTTON_RIGHT)) {
          float pitchChange = (float) (MouseListener.getDy() * 0.5f);
          pitch += pitchChange;
-         pitch = Math.clamp(pitch,-90,90);
+         pitch = Math.clamp(pitch, -90, 90);
       }
    }
 
-   private void calculateAngleAround(){
-      if(MouseListener.isButtonDown(GLFW_MOUSE_BUTTON_RIGHT)){
+   private void calculateAngleAround() {
+      if (MouseListener.isButtonDown(GLFW_MOUSE_BUTTON_RIGHT)) {
          float angleChange = (float) (MouseListener.getDx() / 4);
          this.angleAround += angleChange;
       }
@@ -72,13 +72,15 @@ public class Camera {
       return (float) (this.zoom * Math.cos(Math.toRadians(this.pitch)));
    }
 
-   private float calculateVerticalDistance(){
+   private float calculateVerticalDistance() {
       return (float) (this.zoom * Math.sin(Math.toRadians(this.pitch)));
    }
 
-   private void calculatePosition(float horizontalDistance, float verticalDistance){
-      this.position.y = player.getPosition().y + verticalDistance;
-      this.position.x = this.player.getPosition().x - (float) (horizontalDistance * Math.sin(Math.toRadians(angleAround)));
-      this.position.z = this.player.getPosition().z - (float) (horizontalDistance * Math.cos(Math.toRadians(angleAround)));
+   private void calculatePosition(float horizontalDistance, float verticalDistance) {
+      this.position.set(
+        (float) (this.player.getPosition().x() - horizontalDistance * Math.sin(Math.toRadians(angleAround))),
+        player.getPosition().y() + verticalDistance,
+        (float) (this.player.getPosition().z() - horizontalDistance * Math.cos(Math.toRadians(angleAround)))
+      );
    }
 }

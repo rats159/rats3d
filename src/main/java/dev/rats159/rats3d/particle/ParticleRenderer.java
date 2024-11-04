@@ -2,14 +2,15 @@ package dev.rats159.rats3d.particle;
 
 import dev.rats159.rats3d.entities.Camera;
 import dev.rats159.rats3d.models.Model;
-import dev.rats159.rats3d.models.ParticleModelData;
+import dev.rats159.rats3d.models.QuadModelData;
 import dev.rats159.rats3d.renderer.Loader;
 import dev.rats159.rats3d.util.MathHelper;
+import dev.rats159.rats3d.util.math.Vector3f;
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -39,8 +40,7 @@ public class ParticleRenderer {
    protected ParticleRenderer(Matrix4f projectionMatrix){
       this.vboID = Loader.createEmptyVBO(INSTANCE_DATA_LENGTH * MAX_INSTANCES);
 
-      Loader.loadModel("particle_quad",new ParticleModelData(QUAD_VERTICES));
-      this.quad = Loader.getModel("particle_quad");
+      this.quad = Loader.loadModel(new QuadModelData(QUAD_VERTICES));
 
       Loader.addInstanceAttribute(quad.vaoID(),vboID,1,4,INSTANCE_DATA_LENGTH,0);
       Loader.addInstanceAttribute(quad.vaoID(),vboID,2,4,INSTANCE_DATA_LENGTH,4);
@@ -79,10 +79,10 @@ public class ParticleRenderer {
    }
 
    private void updateTextureInfo(Particle particle, float[] data){
-      data[pointer++] = particle.getTexOffset1().x;
-      data[pointer++] = particle.getTexOffset1().y;
-      data[pointer++] = particle.getTexOffset2().x;
-      data[pointer++] = particle.getTexOffset2().y;
+      data[pointer++] = particle.getTexOffset1().x();
+      data[pointer++] = particle.getTexOffset1().y();
+      data[pointer++] = particle.getTexOffset2().x();
+      data[pointer++] = particle.getTexOffset2().y();
       data[pointer++] = particle.getBlendFactor();
    }
 
@@ -94,7 +94,7 @@ public class ParticleRenderer {
 
    private void updateModelViewMatrix(Vector3f position, float rotation, float scale, Matrix4f viewMatrix, float[] vboData){
       Matrix4f modelMatrix = new Matrix4f();
-      modelMatrix.translate(position);
+      modelMatrix.translate(position.toJOML());
 
       modelMatrix.m00(viewMatrix.m00());
       modelMatrix.m01(viewMatrix.m10());
@@ -106,7 +106,7 @@ public class ParticleRenderer {
       modelMatrix.m21(viewMatrix.m12());
       modelMatrix.m22(viewMatrix.m22());
 
-      modelMatrix.rotate((float)Math.toRadians(rotation), MathHelper.POSITIVE_Z);
+      modelMatrix.rotate((float)Math.toRadians(rotation), MathHelper.POSITIVE_Z.toJOML());
       modelMatrix.scale(scale);
 
       Matrix4f modelViewMatrix = new Matrix4f();

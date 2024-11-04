@@ -7,7 +7,7 @@ import dev.rats159.rats3d.assets.Texture;
 import dev.rats159.rats3d.models.Model;
 import dev.rats159.rats3d.models.ModelData;
 import dev.rats159.rats3d.models.OBJModelData;
-import dev.rats159.rats3d.models.ParticleModelData;
+import dev.rats159.rats3d.particle.TextureAtlas;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
@@ -20,6 +20,7 @@ import static org.lwjgl.opengl.GL33.glVertexAttribDivisor;
 
 public final class Loader {
    private static final AssetGroup<Texture> textures = new AssetGroup<>();
+   private static final AssetGroup<TextureAtlas> texturesAtlases = new AssetGroup<>();
    private static final AssetGroup<Model> models = new AssetGroup<>();
 
    private static final List<Integer> vaoIDs = new ArrayList<>();
@@ -34,9 +35,19 @@ public final class Loader {
       models.put(name,new Model(id,data));
    }
 
-   public static void loadModel(String name, ParticleModelData data) {
+   public static Model loadModel(ModelData data){
+      return loadModel(null,data);
+   }
+
+   public static Model loadModel(String name, ModelData data) {
       int vaoID = modelDataToVAO(data);
-      models.put(name,new Model(vaoID, data));
+      Model model = new Model(vaoID, data);
+
+      if(name != null) {
+         models.put(name, model);
+      }
+
+      return model;
    }
 
    public static int modelDataToVAO(ModelData data){
@@ -147,5 +158,14 @@ public final class Loader {
 
    public static Model getModel(String name) {
       return models.get(name);
+   }
+
+   public static TextureAtlas getTextureAtlas(String name) {
+      return texturesAtlases.get(name);
+   }
+
+   public static void loadTextureAtlas(String name, int rowCount) {
+      loadTexture(name);
+      texturesAtlases.put(name, new TextureAtlas(getTexture(name),rowCount));
    }
 }

@@ -14,4 +14,5 @@ void main(void){
     vec4 color2 = texture(uTex, fUV2);
 
     outColor = mix(color1,color2,fBlendFactor);
+    outColor = vec4(1,1,0,1);
 }

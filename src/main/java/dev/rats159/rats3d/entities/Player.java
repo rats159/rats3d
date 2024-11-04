@@ -2,23 +2,22 @@ package dev.rats159.rats3d.entities;
 
 import dev.rats159.rats3d.input.KeyboardListener;
 import dev.rats159.rats3d.models.TexturedModel;
-import dev.rats159.rats3d.renderer.Window;
-import dev.rats159.rats3d.terrain.Terrain;
+import dev.rats159.rats3d.terrain.Chunk;
+import dev.rats159.rats3d.time.Time;
+import dev.rats159.rats3d.time.TimeUnit;
+import dev.rats159.rats3d.util.math.Vector3f;
 import dev.rats159.rats3d.util.structures.TwoTuple;
-import org.joml.Vector3f;
 
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Player extends Entity {
    private static final float RUN_SPEED = .08f;
-   public static final float GRAVITY = -.00025f;
-   private static final float JUMP_POWER = .05f;
+   public static final float GRAVITY = -.91f;
+   private static final float JUMP_POWER = .5f;
 
-   private final Vector3f motion = new Vector3f(0, 0, 0);
+   private final Vector3f velocity = new Vector3f(0, 0, 0);
 
    private Camera camera;
-
-   private float upwardsVelocity = 0;
 
    private boolean isGrounded = true;
 
@@ -30,37 +29,37 @@ public class Player extends Entity {
       this.camera = camera;
    }
 
-   public void move(Terrain terrain) {
-      this.motion.x = 0;
-      this.motion.z = 0;
+   public void move(Chunk chunk) {
+      this.velocity.x(0);
+      this.velocity.z(0);
       checkInputs();
 
-      float dx = this.motion.x;
-      float dz = -this.motion.z;
+      float dx = this.velocity.x();
+      float dz = -this.velocity.z();
 
       if(dx != 0 || dz != 0) {
          float horizontalLength = (float) Math.sqrt(dx * dx + dz * dz);
-         this.motion.x /= horizontalLength;
-         this.motion.z /= horizontalLength;
+         this.velocity.divAssignX(horizontalLength);
+         this.velocity.divAssignZ(horizontalLength);
          float rot = (float) Math.toDegrees(Math.atan2(dz, dx)) - 90;
          super.setRotation(0, rot, 0);
       }
 
-      this.upwardsVelocity += GRAVITY * Window.getDelta();
-      this.motion.y = upwardsVelocity * Window.getDelta();
-      super.move(this.motion.x, this.motion.y, this.motion.z);
+      this.velocity.addAssignY((float) (GRAVITY * (Time.delta(TimeUnit.MILLISECONDS))));
+      System.out.println(this.velocity.y());
+      super.move(this.velocity);
 
-      checkGrounded(terrain);
+      checkGrounded(chunk);
    }
 
    private void moveInDir(float offset) {
       float direction = this.camera.getYaw() + offset;
-      float distance = RUN_SPEED * Window.getDelta();
+      float distance = (float) (RUN_SPEED * Time.delta(TimeUnit.MILLISECONDS));
       float dx = (float) (Math.sin(Math.toRadians(direction)));
       float dz = (float) (-Math.cos(Math.toRadians(direction)));
 
-      this.motion.x += distance * (dx);
-      this.motion.z += distance * (dz);
+      this.velocity.addAssignX(distance * dx);
+      this.velocity.addAssignZ(distance * dz);
    }
 
    private void forward() {
@@ -79,12 +78,12 @@ public class Player extends Entity {
       moveInDir(90);
    }
 
-   private void checkGrounded(Terrain terrain) {
-      float terrainHeight = terrain.getHeight(this.position.x, this.position.z);
+   private void checkGrounded(Chunk chunk) {
+      float terrainHeight = chunk.getHeight(this.position.xz());
 
-      if (super.getPosition().y < terrainHeight) {
-         this.upwardsVelocity = 0;
-         this.getPosition().y = terrainHeight;
+      if (position.y() < terrainHeight) {
+         this.velocity.y(0);
+         this.position.y(terrainHeight);
          isGrounded = true;
       }
    }
@@ -92,7 +91,7 @@ public class Player extends Entity {
    private void jump() {
       if (!isGrounded) return;
 
-      this.upwardsVelocity = JUMP_POWER;
+      this.velocity.y(JUMP_POWER);
       isGrounded = false;
    }
 

@@ -10,7 +10,7 @@ import java.nio.IntBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
 
-public class Texture extends Asset{
+public class Texture implements Asset{
 
    private int width, height;
    private final int id;

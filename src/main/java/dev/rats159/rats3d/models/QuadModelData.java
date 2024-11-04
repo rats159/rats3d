@@ -2,7 +2,7 @@ package dev.rats159.rats3d.models;
 
 import dev.rats159.rats3d.renderer.Loader;
 
-public record ParticleModelData(float[] positions) implements ModelData{
+public record QuadModelData(float[] positions) implements ModelData{
    @Override
    public int vertexCount() {
       return 4;
@@ -10,6 +10,6 @@ public record ParticleModelData(float[] positions) implements ModelData{
 
    @Override
    public void store() {
-      Loader.storeData(0,positions,3);
+      Loader.storeData(0,positions,2);
    }
 }

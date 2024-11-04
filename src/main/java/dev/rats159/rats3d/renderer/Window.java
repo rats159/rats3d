@@ -14,9 +14,6 @@ public final class Window {
    public static final int DEFAULT_HEIGHT = 720;
    public static String title;
 
-   private static long lastFrameTime;
-   private static float delta;
-
    private static long handle;
 
    public static void create(String title){
@@ -55,7 +52,6 @@ public final class Window {
       glfwShowWindow(handle);
 
       GL.createCapabilities();
-      lastFrameTime = getCurrentTimeMillis();
    }
 
    public static boolean shouldClose(){
@@ -65,9 +61,6 @@ public final class Window {
    public static void tick(){
       glfwPollEvents();
       glfwSwapBuffers(handle);
-      long currentFrameTime = getCurrentTimeMillis();
-      delta = currentFrameTime - lastFrameTime;
-      lastFrameTime = currentFrameTime;
    }
 
    public static void destroy(){
@@ -86,13 +79,5 @@ public final class Window {
       int[] height = new int[1];
       glfwGetWindowSize(handle,width,height);
       return height[0];
-   }
-
-   private static long getCurrentTimeMillis(){
-      return (long) (glfwGetTime() * 1000);
-   }
-
-   public static float getDelta(){
-      return delta;
    }
 }

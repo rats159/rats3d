@@ -4,7 +4,7 @@ import dev.rats159.rats3d.entities.Camera;
 import dev.rats159.rats3d.entities.Light;
 import dev.rats159.rats3d.util.MathHelper;
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
+import dev.rats159.rats3d.util.math.Vector3f;
 
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 
@@ -38,11 +38,7 @@ public class TerrainShader extends Shader{
    }
 
    public void connectTextureUnits(){
-      super.loadInt("backgroundTex",0);
-      super.loadInt("rTex",1);
-      super.loadInt("gTex",2);
-      super.loadInt("bTex",3);
-      super.loadInt("blendMap",4);
+      super.loadInt("uTex",0);
    }
 
    public void loadTransformationMatrix(Matrix4f matrix){

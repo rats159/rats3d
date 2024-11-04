@@ -1,6 +1,6 @@
 # Blender 4.0.2
 # www.blender.org
-mtllib terrain.mtl
+mtllib chunk.mtl
 o Plane
 v -50.000000 -7.123280 50.000000
 v 50.000000 -7.123280 50.000000

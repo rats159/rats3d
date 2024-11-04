@@ -47,7 +47,7 @@ public class ParticleMaster {
    }
 
    public static void addParticle(Particle particle, Entity viewer){
-      if(particle.getPosition().distanceSquared(viewer.getPosition()) > 10000){
+      if(particle.getPosition().distanceSquared(viewer.getPosition()) > 1000000){
          return;
       }
       List<Particle> particleList = particles.computeIfAbsent(particle.getTexture(), _ -> new ArrayList<>());

@@ -6,7 +6,7 @@ import dev.rats159.rats3d.entities.Light;
 import dev.rats159.rats3d.models.TexturedModel;
 import dev.rats159.rats3d.shaders.StaticShader;
 import dev.rats159.rats3d.shaders.TerrainShader;
-import dev.rats159.rats3d.terrain.Terrain;
+import dev.rats159.rats3d.terrain.Chunk;
 import org.joml.Matrix4f;
 
 import java.util.*;
@@ -30,7 +30,7 @@ public class RenderController {
    private final TerrainRenderer terrainRenderer;
 
    private final Map<TexturedModel, List<Entity>> entities = new HashMap<>();
-   private final List<Terrain> terrains = new ArrayList<>();
+   private final List<Chunk> chunks = new ArrayList<>();
 
    public RenderController(){
       createProjectionMatrix();
@@ -57,15 +57,15 @@ public class RenderController {
       terrainShader.loadLights(lights);
       terrainShader.loadViewMatrix(camera);
       terrainShader.loadSkyColor(SKY_RED,SKY_GREEN,SKY_BLUE);
-      terrainRenderer.render(terrains);
+      terrainRenderer.render(chunks);
       terrainShader.stop();
 
-      terrains.clear();
+      chunks.clear();
       entities.clear();
    }
 
-   public void processTerrain(Terrain terrain){
-      this.terrains.add(terrain);
+   public void processTerrain(Chunk chunk){
+      this.chunks.add(chunk);
    }
 
    public void prepare(){
