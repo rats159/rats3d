@@ -1,4 +1,4 @@
-package framebuffer
+package render_target_depth
 
 import r3d "../../"
 import freecam "../free_camera"
@@ -17,7 +17,7 @@ XY_UV_Vertex :: struct {
 main :: proc() {
 	hue_offset: f32 = 0
 	hue_scale: f32 = 1
-	r3d.open_window(1280, 720, "Framebuffer Example!", {.Panic_On_Error})
+	r3d.open_window(1280, 720, "Render Target Example!", {.Panic_On_Error})
 
 	r3d.maximize()
 
@@ -27,8 +27,8 @@ main :: proc() {
 	)
 
 	screen_shader := r3d.load_shader(
-		RESOURCES + "shaders/framebuffer.vert",
-		RESOURCES + "shaders/framebuffer.frag",
+		RESOURCES + "shaders/render_target_depth.vert",
+		RESOURCES + "shaders/render_target_depth.frag",
 	)
 
 	mesh := r3d.load_obj(RESOURCES + "models/just_a_girl.obj")
