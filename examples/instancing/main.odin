@@ -67,8 +67,6 @@ main :: proc() {
 		vbo_id := model._vbos[1]
 		r3d.draw_model_instanced(&model, transforms[:], vbo_id)
 
-		fmt.println(r3d.delta_time())
-
 		r3d.swap_buffers()
 	}
 }
