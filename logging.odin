@@ -23,5 +23,5 @@ log_error :: proc(fmt: string, args: ..any, loc := #caller_location) {
 log_warning :: proc(fmt: string, args: ..any, loc := #caller_location) {
 	context.logger = global_state.logger
 
-	log.warn(fmt, args, location = loc)
+	log.warnf(fmt, ..args, location = loc)
 }
