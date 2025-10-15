@@ -64,6 +64,8 @@ open_window :: proc(
 		window,
 		proc "c" (window: glfw.WindowHandle, width, height: i32) {
 			gl.Viewport(0, 0, width, height)
+			global_state.window.width = int(width)
+			global_state.window.height = int(height)
 		},
 	)
 
@@ -131,4 +133,12 @@ clear :: proc(color: [4]f32) {
 	gl.ClearColor(color.r, color.g, color.b, color.a)
 
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+}
+
+screen_width :: proc() -> int {
+	return global_state.window.width
+}
+
+screen_height :: proc() -> int {
+	return global_state.window.height
 }
