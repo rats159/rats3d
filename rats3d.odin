@@ -21,6 +21,7 @@ Global_State :: struct {
 	last_mouse_position: [2]f32,
 	mouse_position:      [2]f32,
 	panic_on_err:        bool,
+	framebuffer_stack:   [dynamic]Render_Target,
 }
 
 @(private)

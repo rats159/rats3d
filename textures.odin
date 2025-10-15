@@ -33,6 +33,32 @@ gen_texture_color :: proc(color: Color, width, height: int) -> Texture {
 	return load_texture_from_image(gen_image_color(color, width, height))
 }
 
+gen_texture_depth :: proc(width, height: int) -> Texture {
+	pixels := make([]f32, width * height)
+	texture: u32
+
+	gl.GenTextures(1, &texture)
+	gl.BindTexture(gl.TEXTURE_2D, texture)
+
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP)
+
+	gl.TexImage2D(
+		gl.TEXTURE_2D,
+		0,
+		gl.DEPTH_COMPONENT32,
+		i32(width),
+		i32(height),
+		0,
+		gl.DEPTH_COMPONENT,
+		gl.FLOAT,
+		raw_data(pixels),
+	)
+
+	return {width = width, height = height, id = texture}
+}
 
 load_texture_from_image :: proc(img: Image) -> Texture {
 	texture: u32
@@ -61,6 +87,10 @@ load_texture_from_image :: proc(img: Image) -> Texture {
 	return {width = img.width, height = img.height, id = texture}
 }
 
+read_texture_data :: proc(tex: Texture, out_data: []f32) {
+	gl.BindTexture(gl.TEXTURE_2D, tex.id)
+	gl.GetTexImage(gl.TEXTURE_2D, 0, gl.DEPTH_COMPONENT, gl.FLOAT, raw_data(out_data))
+}
 
 load_texture_err :: proc(filepath: string) -> (Texture, Texture_Load_Error) {
 	img, err := image.load_from_file(filepath, {.alpha_add_if_missing})
@@ -80,7 +110,7 @@ load_texture_err :: proc(filepath: string) -> (Texture, Texture_Load_Error) {
 	for pixel, i in rgba_pixels {
 		x := i % img.width
 		y := i / img.width
-	
+
 		flip_buffer[x + (img.height - 1 - y) * img.width] = pixel
 	}
 
