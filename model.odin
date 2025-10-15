@@ -73,14 +73,15 @@ load_vertex_attributes :: proc(vertex_format: Vertex_Format) -> []u32 {
 		total_stride: i32 = 0
 
 		for attribute, j in format {
-			gl.EnableVertexAttribArray(u32(j))
 			comp_type, comp_count := component_type_count(attribute.type)
 			total_stride += i32(reflect.size_of_typeid(comp_type) * comp_count)
 		}
-
+		
 		current_offset: uintptr = 0
-
+		
 		for attribute, j in format {
+			gl.EnableVertexAttribArray(u32(total_index))
+			
 			comp_type, comp_count := component_type_count(attribute.type)
 			gl.VertexAttribPointer(
 				total_index,
@@ -126,7 +127,11 @@ draw_model :: proc(model: Model($_Format)) {
 	gl.DrawArrays(gl.TRIANGLES, 0, i32(len(model.mesh.vertices)))
 }
 
-draw_model_instanced :: proc(model: ^Model, transformations: []glsl.mat4, instance_vbo_id: u32) {
+draw_model_instanced :: proc(
+	model: ^Model($V),
+	transformations: []glsl.mat4,
+	instance_vbo_id: u32,
+) {
 	if len(transformations) > model._instance_count {
 		new_capacity := max(len(transformations), model._instance_count * 2)
 		gl.BindBuffer(gl.ARRAY_BUFFER, instance_vbo_id)
@@ -154,8 +159,16 @@ draw_model_instanced :: proc(model: ^Model, transformations: []glsl.mat4, instan
 	)
 }
 
-generate_mesh_from_heightmap :: proc(base: Image, x_scale, y_scale, z_scale: f32) -> Mesh(Pos_Uv_Normal_Vertex) {
-	emit_vertex :: proc(vertices: ^[dynamic]Pos_Uv_Normal_Vertex, pos: [3]f32, normal: [3]f32, uv: [2]f32) {
+generate_mesh_from_heightmap :: proc(
+	base: Image,
+	x_scale, y_scale, z_scale: f32,
+) -> Mesh(Pos_Uv_Normal_Vertex) {
+	emit_vertex :: proc(
+		vertices: ^[dynamic]Pos_Uv_Normal_Vertex,
+		pos: [3]f32,
+		normal: [3]f32,
+		uv: [2]f32,
+	) {
 		append(vertices, Pos_Uv_Normal_Vertex{position = pos, uvs = uv, normal = normal})
 	}
 
