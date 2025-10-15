@@ -115,6 +115,19 @@ load_shader_err :: proc(
 
 upload :: proc {
 	upload_mat4,
+	upload_float,
+}
+
+upload_float :: proc(shader: Shader, float: f32, location: string, loc := #caller_location) {
+	use_shader(shader)
+	if location not_in shader.locations {
+		log_error(
+			"Tried to upload float to uniform \"%s\", whose location was not set.",
+			location,
+			loc = loc,
+		)
+	}
+	gl.Uniform1f(shader.locations[location], float)
 }
 
 upload_mat4 :: proc(
@@ -125,12 +138,13 @@ upload_mat4 :: proc(
 ) {
 	use_shader(shader)
 	mat := mat
-	fmt.assertf(
-		location in shader.locations,
-		"Tried to upload matrix to uniform \"%s\", whose location was not set",
-		location,
-		loc = loc,
-	)
+	if location not_in shader.locations {
+		log_error(
+			"Tried to upload matrix to uniform \"%s\", whose location was not set.",
+			location,
+			loc = loc,
+		)
+	}
 	gl.UniformMatrix4fv(shader.locations[location], 1, false, raw_data(&mat))
 }
 
