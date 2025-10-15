@@ -1,8 +1,8 @@
 package rats3d
 
-import "core:slice"
 import "core:image"
 import "core:image/png"
+import "core:slice"
 import gl "vendor:OpenGL"
 
 _ :: png
@@ -28,6 +28,11 @@ load_texture :: proc(path: string, loc := #caller_location) -> Texture {
 
 	return texture
 }
+
+gen_texture_color :: proc(color: Color, width, height: int) -> Texture {
+	return load_texture_from_image(gen_image_color(color, width, height))
+}
+
 
 load_texture_from_image :: proc(img: Image) -> Texture {
 	texture: u32
