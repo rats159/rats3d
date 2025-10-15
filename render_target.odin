@@ -23,17 +23,49 @@ create_render_target :: proc(
 	gl.GenFramebuffers(1, &fbo)
 	gl.BindFramebuffer(gl.FRAMEBUFFER, fbo)
 
-	texture_depth_buffer := gen_texture_depth(width, height)
-	gl.FramebufferTexture2D(
-		gl.FRAMEBUFFER,
-		gl.DEPTH_ATTACHMENT,
-		gl.TEXTURE_2D,
-		texture_depth_buffer.id,
-		0,
-	)
+	color_tex: Maybe(Texture)
+	depth_tex: Maybe(Texture)
 
-	gl.DrawBuffer(gl.NONE)
-	gl.ReadBuffer(gl.NONE)
+	if .Depth in texture_options {
+		texture_depth_buffer := gen_texture_depth(width, height)
+		gl.FramebufferTexture2D(
+			gl.FRAMEBUFFER,
+			gl.DEPTH_ATTACHMENT,
+			gl.TEXTURE_2D,
+			texture_depth_buffer.id,
+			0,
+		)
+		depth_tex = texture_depth_buffer
+	} else {
+		rbo: u32
+		gl.GenRenderbuffers(1, &rbo)
+
+		gl.BindRenderbuffer(gl.RENDERBUFFER, rbo)
+
+		gl.RenderbufferStorage(gl.RENDERBUFFER, gl.DEPTH24_STENCIL8, i32(width), i32(height))
+		gl.FramebufferRenderbuffer(
+			gl.FRAMEBUFFER,
+			gl.DEPTH_STENCIL_ATTACHMENT,
+			gl.RENDERBUFFER,
+			rbo,
+		)
+	}
+
+	if .Color in texture_options {
+		texture_color_buffer := gen_texture_color_target(width, height)
+		gl.FramebufferTexture2D(
+			gl.FRAMEBUFFER,
+			gl.COLOR_ATTACHMENT0,
+			gl.TEXTURE_2D,
+			texture_color_buffer.id,
+			0,
+		)
+		color_tex = texture_color_buffer
+	} else {
+		gl.DrawBuffer(gl.NONE)
+		gl.ReadBuffer(gl.NONE)
+	}
+
 
 	assert(gl.CheckFramebufferStatus(gl.FRAMEBUFFER) == gl.FRAMEBUFFER_COMPLETE)
 
@@ -41,8 +73,8 @@ create_render_target :: proc(
 
 	return {
 		_id = fbo,
-		depth_tex = texture_depth_buffer,
-		color_tex = nil,
+		depth_tex = depth_tex,
+		color_tex = color_tex,
 		width = width,
 		height = height,
 	}

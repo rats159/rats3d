@@ -34,7 +34,6 @@ gen_texture_color :: proc(color: Color, width, height: int) -> Texture {
 }
 
 gen_texture_depth :: proc(width, height: int) -> Texture {
-	pixels := make([]f32, width * height)
 	texture: u32
 
 	gl.GenTextures(1, &texture)
@@ -54,7 +53,33 @@ gen_texture_depth :: proc(width, height: int) -> Texture {
 		0,
 		gl.DEPTH_COMPONENT,
 		gl.FLOAT,
-		raw_data(pixels),
+		nil
+	)
+
+	return {width = width, height = height, id = texture}
+}
+
+gen_texture_color_target :: proc(width, height: int) -> Texture {
+	texture: u32
+
+	gl.GenTextures(1, &texture)
+	gl.BindTexture(gl.TEXTURE_2D, texture)
+
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP)
+
+	gl.TexImage2D(
+		gl.TEXTURE_2D,
+		0,
+		gl.RGB,
+		i32(width),
+		i32(height),
+		0,
+		gl.RGB,
+		gl.FLOAT,
+		nil
 	)
 
 	return {width = width, height = height, id = texture}
