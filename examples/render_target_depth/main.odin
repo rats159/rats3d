@@ -113,7 +113,6 @@ main :: proc() {
 			r3d.draw_model(model)
 		}
 		r3d.disable_depth_test()
-		r3d.use_shader(screen_shader)
 
 		r3d.read_texture_data(fullscreen_quad.texture, buf)
 		min_depth := slice.min(buf)
