@@ -61,8 +61,8 @@ resolve_model :: proc(
 	tex_coords: [dynamic]Obj_Uv,
 	faces: [dynamic]Obj_Face,
 	allocator: runtime.Allocator,
-) -> Mesh {
-	vertices := make([]Vertex, len(faces) * 3, allocator)
+) -> Mesh(Pos_Uv_Normal_Vertex) {
+	vertices := make([]Pos_Uv_Normal_Vertex, len(faces) * 3, allocator)
 
 	vertex_index := 0
 	for face in faces {

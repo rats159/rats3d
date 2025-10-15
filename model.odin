@@ -1,81 +1,124 @@
 package rats3d
 
+import "base:runtime"
+import "core:fmt"
 import "core:math/linalg"
 import "core:math/linalg/glsl"
+import "core:reflect"
 import "core:slice"
 import gl "vendor:OpenGL"
 
-Vertex :: struct {
+Pos_Uv_Normal_Vertex :: struct {
 	position: glsl.vec3,
 	normal:   glsl.vec3,
 	uvs:      glsl.vec2,
 }
 
-Mesh :: struct {
-	vertices: []Vertex,
+Mesh :: struct($Vertex_Type: typeid = typeid_of(Pos_Uv_Normal_Vertex)) {
+	vertices: []Vertex_Type,
 }
 
-Model :: struct {
-	mesh:            Mesh,
+Model :: struct($Vertex_Type: typeid = typeid_of(Pos_Uv_Normal_Vertex)) {
+	mesh:            Mesh(Vertex_Type),
 	transformation:  glsl.mat4,
 	shader:          Shader,
 	texture:         Texture,
 	_vao:            u32,
-	_vbo:            u32,
-	_instance_vbo:   u32, // Unallocated until you draw_instances
+	_vbos:           []u32,
 	_instance_count: int,
 }
 
-load_model_from_mesh :: proc(mesh: Mesh) -> Model {
+Vertex_Format :: [][]struct {
+	type:    typeid,
+	divisor: u32,
+}
+
+
+default_vertex_format := Vertex_Format {
+	{{[3]f32, 0}, {[3]f32, 0}, {[2]f32, 0}},
+	{{[4]f32, 1}, {[4]f32, 1}, {[4]f32, 1}, {[4]f32, 1}},
+}
+
+component_type_count :: proc(t: typeid) -> (typeid, int) {
+	info := type_info_of(t)
+	#partial switch variant in info.variant {
+	case runtime.Type_Info_Named:
+		return component_type_count(variant.base.id)
+	case runtime.Type_Info_Array:
+		return variant.elem.id, variant.count
+	case runtime.Type_Info_Float, runtime.Type_Info_Integer:
+		return t, 1
+	}
+	fmt.panicf("Unsupported VBO component type %v", t)
+}
+
+type_to_gl_type :: proc(t: typeid) -> u32 {
+	switch t {
+	case f32:
+		return gl.FLOAT
+	}
+
+	fmt.panicf("Unsupported GL type %v", t)
+}
+
+load_vertex_attributes :: proc(vertex_format: Vertex_Format) -> []u32 {
+	vbos := make([]u32, len(vertex_format))
+	gl.GenBuffers(i32(len(vbos)), raw_data(vbos))
+
+	total_index: u32 = 0
+
+	for format, i in vertex_format {
+		gl.BindBuffer(gl.ARRAY_BUFFER, vbos[i])
+
+		total_stride: i32 = 0
+
+		for attribute, j in format {
+			gl.EnableVertexAttribArray(u32(j))
+			comp_type, comp_count := component_type_count(attribute.type)
+			total_stride += i32(reflect.size_of_typeid(comp_type) * comp_count)
+		}
+
+		current_offset: uintptr = 0
+
+		for attribute, j in format {
+			comp_type, comp_count := component_type_count(attribute.type)
+			gl.VertexAttribPointer(
+				total_index,
+				i32(comp_count),
+				type_to_gl_type(comp_type),
+				false,
+				total_stride,
+				current_offset,
+			)
+
+			gl.VertexAttribDivisor(total_index, attribute.divisor)
+
+			total_index += 1
+			current_offset += uintptr(reflect.size_of_typeid(comp_type) * comp_count)
+		}
+	}
+
+	return vbos
+}
+
+load_model_from_mesh :: proc(mesh: Mesh($V), vertex_format := default_vertex_format) -> Model(V) {
 	vao: u32
 	gl.GenVertexArrays(1, &vao)
 	gl.BindVertexArray(vao)
 
-	vbos: [2]u32
-	gl.GenBuffers(2, raw_data(&vbos))
+	vbos := load_vertex_attributes(vertex_format)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbos[0])
 	gl.BufferData(
 		gl.ARRAY_BUFFER,
-		size_of(Vertex) * len(mesh.vertices),
+		size_of(V) * len(mesh.vertices),
 		raw_data(mesh.vertices),
 		gl.STATIC_DRAW,
 	)
 
-	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 8 * size_of(f32), 0)
-	gl.VertexAttribPointer(1, 3, gl.FLOAT, false, 8 * size_of(f32), 3 * size_of(f32))
-	gl.VertexAttribPointer(2, 2, gl.FLOAT, false, 8 * size_of(f32), 6 * size_of(f32))
-	gl.EnableVertexAttribArray(0)
-	gl.EnableVertexAttribArray(1)
-	gl.EnableVertexAttribArray(2)
-
-	gl.BindBuffer(gl.ARRAY_BUFFER, vbos[1])
-
-	// no data yet
-	gl.BufferData(gl.ARRAY_BUFFER, 0, nil, gl.DYNAMIC_DRAW)
-
-	gl.EnableVertexAttribArray(3)
-	gl.EnableVertexAttribArray(4)
-	gl.EnableVertexAttribArray(5)
-	gl.EnableVertexAttribArray(6)
-	gl.VertexAttribPointer(3, 4, gl.FLOAT, false, 16 * size_of(f32), 0)
-	gl.VertexAttribPointer(4, 4, gl.FLOAT, false, 16 * size_of(f32), 4 * size_of(f32))
-	gl.VertexAttribPointer(5, 4, gl.FLOAT, false, 16 * size_of(f32), 8 * size_of(f32))
-	gl.VertexAttribPointer(6, 4, gl.FLOAT, false, 16 * size_of(f32), 12 * size_of(f32))
-	gl.VertexAttribDivisor(3, 1)
-	gl.VertexAttribDivisor(4, 1)
-	gl.VertexAttribDivisor(5, 1)
-	gl.VertexAttribDivisor(6, 1)
-
-	return Model {
-		mesh = mesh,
-		_vao = vao,
-		_vbo = vbos[0],
-		_instance_vbo = vbos[1],
-		transformation = 1,
-	}
+	return Model(V){mesh = mesh, _vao = vao, _vbos = vbos, transformation = 1}
 }
 
-draw_model :: proc(model: Model) {
+draw_model :: proc(model: Model($_Format)) {
 	gl.BindVertexArray(model._vao)
 	gl.BindTexture(gl.TEXTURE_2D, model.texture.id)
 	use_shader(model.shader)
@@ -83,15 +126,15 @@ draw_model :: proc(model: Model) {
 	gl.DrawArrays(gl.TRIANGLES, 0, i32(len(model.mesh.vertices)))
 }
 
-draw_model_instanced :: proc(model: ^Model, transformations: []glsl.mat4) {
+draw_model_instanced :: proc(model: ^Model, transformations: []glsl.mat4, instance_vbo_id: u32) {
 	if len(transformations) > model._instance_count {
 		new_capacity := max(len(transformations), model._instance_count * 2)
-		gl.BindBuffer(gl.ARRAY_BUFFER, model._instance_vbo)
+		gl.BindBuffer(gl.ARRAY_BUFFER, instance_vbo_id)
 		gl.BufferData(gl.ARRAY_BUFFER, new_capacity * size_of(glsl.mat4), nil, gl.STREAM_DRAW)
 		model._instance_count = new_capacity
 	}
 
-	gl.BindBuffer(gl.ARRAY_BUFFER, model._instance_vbo)
+	gl.BindBuffer(gl.ARRAY_BUFFER, instance_vbo_id)
 	gl.BufferSubData(
 		gl.ARRAY_BUFFER,
 		0,
@@ -111,12 +154,12 @@ draw_model_instanced :: proc(model: ^Model, transformations: []glsl.mat4) {
 	)
 }
 
-generate_mesh_from_heightmap :: proc(base: Image, x_scale, y_scale, z_scale: f32) -> Mesh {
-	emit_vertex :: proc(vertices: ^[dynamic]Vertex, pos: [3]f32, normal: [3]f32, uv: [2]f32) {
-		append(vertices, Vertex{position = pos, uvs = uv, normal = normal})
+generate_mesh_from_heightmap :: proc(base: Image, x_scale, y_scale, z_scale: f32) -> Mesh(Pos_Uv_Normal_Vertex) {
+	emit_vertex :: proc(vertices: ^[dynamic]Pos_Uv_Normal_Vertex, pos: [3]f32, normal: [3]f32, uv: [2]f32) {
+		append(vertices, Pos_Uv_Normal_Vertex{position = pos, uvs = uv, normal = normal})
 	}
 
-	vertices_raw := make([]Vertex, base.width * base.height * 6)
+	vertices_raw := make([]Pos_Uv_Normal_Vertex, base.width * base.height * 6)
 	vertices := slice.into_dynamic(vertices_raw)
 	for x in 0 ..< f32(base.width) - 1 {
 		for z in 0 ..< f32(base.height) - 1 {
