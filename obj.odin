@@ -9,6 +9,7 @@ Obj_Error :: enum {
 	None,
 	Failed_To_Read_File,
 	Malformed_Data,
+	Unhandled_Keyword,
 }
 
 Obj_Vertex :: distinct [3]f32
@@ -20,8 +21,8 @@ Obj_Face :: struct {
 	normal_indices:   [3]int,
 }
 
-load_obj :: proc(path: string, allocator := context.allocator, loc := #caller_location) -> Mesh {
-	mesh, err := load_obj_err(path, allocator)
+load_obj :: proc(path: string, allocator := context.allocator, loc := #caller_location) -> Mesh(Pos_Uv_Normal_Vertex) {
+	mesh, err := load_obj_err(path, allocator, loc)
 
 	#partial switch err {
 	case .None:
@@ -32,7 +33,7 @@ load_obj :: proc(path: string, allocator := context.allocator, loc := #caller_lo
 	return mesh
 }
 
-load_obj_err :: proc(path: string, allocator := context.allocator) -> (Mesh, Obj_Error) {
+load_obj_err :: proc(path: string, allocator := context.allocator, loc := #caller_location) -> (Mesh(Pos_Uv_Normal_Vertex), Obj_Error) {
 	bytes, err := os2.read_entire_file(path, context.temp_allocator)
 
 	if err != nil {
@@ -47,7 +48,7 @@ load_obj_err :: proc(path: string, allocator := context.allocator) -> (Mesh, Obj
 	faces: [dynamic]Obj_Face
 
 	for line in strings.split_lines_iterator(&text) {
-		if err := parse_line(line, &vertices, &normals, &tex_coords, &faces); err != .None {
+		if err := parse_line(line, &vertices, &normals, &tex_coords, &faces, loc = loc); err != .None {
 			return {}, err
 		}
 	}
@@ -95,6 +96,7 @@ parse_line :: proc(
 	normals: ^[dynamic]Obj_Normal,
 	tex_coords: ^[dynamic]Obj_Uv,
 	faces: ^[dynamic]Obj_Face,
+	loc := #caller_location
 ) -> Obj_Error {
 	line := line
 
@@ -135,10 +137,12 @@ parse_line :: proc(
 				return .Malformed_Data
 			}
 			append(faces, face)
-		case "s", "o":
+		case "s", "o", "g","mtllib","usemtl":
+			log_warning("The object file used the directive '%s', which the loader doesn't currently support.", word, loc=loc)
 			return .None
 		case:
-			panic(word)
+			log_warning("Unhandled OBJ directive '%s'", word,loc = loc)
+			return .Unhandled_Keyword
 		}
 
 	}
