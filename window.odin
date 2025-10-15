@@ -19,7 +19,7 @@ Window_Error :: enum {
 
 setup_defaults :: proc() {
 	glfw.SwapInterval(1)
-	gl.Enable(gl.DEPTH_TEST)
+	enable_depth_test()
 	gl.Enable(gl.CULL_FACE)
 	gl.CullFace(gl.BACK)
 	lock_cursor()
@@ -141,4 +141,12 @@ screen_width :: proc() -> int {
 
 screen_height :: proc() -> int {
 	return global_state.window.height
+}
+
+enable_depth_test :: proc() {
+	gl.Enable(gl.DEPTH_TEST)
+}
+
+disable_depth_test :: proc() {
+	gl.Disable(gl.DEPTH_TEST)
 }
